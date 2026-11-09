@@ -14,4 +14,24 @@ class PlayerStats:
         sorted_players = sorted( nationality_players, key=lambda player: player.goals + player.assists, reverse=True)
 
         return sorted_players
-    
+
+    def top_goal_scorers(self, how_many):
+        players = self.reader.get_players() 
+        sorted_players = sorted(players, key=lambda player: player.goals, reverse=True)
+        return sorted_players[:how_many]
+
+    def top_scorers_by_team(self, team):
+        players = self.reader.get_players()
+        team_players = []
+
+        for player in players:
+            if player.team == team:
+                team_players.append(player)
+
+        sorted_players = sorted(
+            team_players,
+            key=lambda player: player.goals + player.assists,
+            reverse=True
+        )
+
+        return sorted_players

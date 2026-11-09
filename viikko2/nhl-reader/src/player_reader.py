@@ -8,7 +8,6 @@ class PlayerReader:
 
     def get_players(self):
         response = requests.get(self.url).json()
-    
         players = []
 
         for player_dict in response:
@@ -17,3 +16,4 @@ class PlayerReader:
             players.append(player)
 
         return players
+    
