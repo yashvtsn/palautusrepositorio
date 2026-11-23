@@ -65,7 +65,7 @@ class TestKauppa(unittest.TestCase):
         kauppa.maksa("1111")
 
         # katsotaan, että kolmannen parametrin arvo on oikea
-        pankki_mock.maksa.assert_called_with(ANY, ANY, 2345)
+        pankki_mock.maksa.assert_called_with(ANY, ANY, 55)
 
     def test_pyydetaan_uusi_viite_jokaiseen_maksuun(self):
         pankki_mock = Mock()
@@ -121,7 +121,7 @@ class TestKauppa(unittest.TestCase):
             [
                 call(ANY, ANY, 1),
                 call(ANY, ANY, 2),
-                call(ANY, ANY, 25),
+                call(ANY, ANY, 3),
             ],
         )
 
@@ -153,5 +153,84 @@ class TestKauppa(unittest.TestCase):
                 call("1111", 5, 1),
                 call("1222", 1, 2),
                 call("4321", 3, 3),
+            ],
+        )
+
+    def test_yhden_tuotteen_ostaminen(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.side_effect = [1, 2, 3]
+
+        kauppa = Kauppa(pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_ostokset()
+        kauppa.lisaa_ostos(5)
+        kauppa.maksa("1111")
+
+        self.assertEqual(
+            pankki_mock.maksa.call_args_list,
+            [
+                call("1111", 5, 1),
+            ],
+        )
+
+    def test_kahden_eri_tuotteen_ostaminen(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.side_effect = [1, 2, 3]
+
+        kauppa = Kauppa(pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_ostokset()
+        kauppa.lisaa_ostos(5)
+        kauppa.lisaa_ostos(1)
+        kauppa.maksa("1111")
+
+        self.assertEqual(
+            pankki_mock.maksa.call_args_list,
+            [
+                call("1111", 6, 1),
+            ],
+        )
+
+    def test_kahden_saman_tuotteen_ostaminen(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.side_effect = [1, 2, 3]
+
+        kauppa = Kauppa(pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_ostokset()
+        kauppa.lisaa_ostos(5)
+        kauppa.lisaa_ostos(5)
+        kauppa.maksa("1111")
+
+        self.assertEqual(
+            pankki_mock.maksa.call_args_list,
+            [
+                call("1111", 10, 1),
+            ],
+        )
+
+    def test_yksi_tuote_loppu_varastosta(self):
+        pankki_mock = Mock()
+        viitegeneraattori_mock = Mock()
+
+        viitegeneraattori_mock.uusi.side_effect = [1, 2, 3]
+
+        kauppa = Kauppa(pankki_mock, viitegeneraattori_mock)
+
+        kauppa.aloita_ostokset()
+        kauppa.lisaa_ostos(5)
+        kauppa.lisaa_ostos(3)
+        kauppa.maksa("1111")
+
+        self.assertEqual(
+            pankki_mock.maksa.call_args_list,
+            [
+                call("1111", 5, 1),
             ],
         )
